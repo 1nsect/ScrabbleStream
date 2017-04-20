@@ -1,3 +1,16 @@
+import sys
+import time #sleep function
+import cv2
+import numpy as np
+import math #to use absolute value function 'fabs'
+import pytesseract
+
+def ShowImage(title,im,time):
+  cv2.imshow(title,im)
+  cv2.waitKey(time)
+  cv2.destroyAllWindows()
+  return;
+
 def CropBoard( image, FillSize, SizeOfReworkedImage ):
   "Takes the image to find the outer edges"
   
@@ -9,9 +22,12 @@ def CropBoard( image, FillSize, SizeOfReworkedImage ):
   #th1 = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
   
   #Create a kernel of size Fillsize to open the thresholded image 
-  kernel = np.ones((FillSize,FillSize),np.uint8)
+  kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(FillSize,FillSize))
+  #kernel = np.ones((FillSize,FillSize),np.uint8)
   opening = cv2.morphologyEx(th1, cv2.MORPH_OPEN, kernel)
   
+  ShowImage('title',opening,2000)
+
   #apply Canny Edge algorythm
   canny = cv2.Canny(opening,100,200)
   
@@ -27,18 +43,14 @@ def CropBoard( image, FillSize, SizeOfReworkedImage ):
   
   #Define approx as float32 and define size of the perspectived/croped image
   pts1 = np.float32(approx)
-  pts2 = np.float32([[0,0],[SizeOfPerspective,0],[SizeOfPerspective,SizeOfPerspective],[0,SizeOfPerspective]])
+  pts2 = np.float32([[0,0],[SizeOfReworkedImage,0],[SizeOfReworkedImage,SizeOfReworkedImage],[0,SizeOfReworkedImage]])
   
   #Create matrix of perspective transformation
   Correction = cv2.getPerspectiveTransform(pts1,pts2)
   
   #Transform image to get right perspective
-  perspective = cv2.warpPerspective(im,Correction,(SizeOfPerspective,SizeOfPerspective))
+  perspective = cv2.warpPerspective(image,Correction,(SizeOfReworkedImage,SizeOfReworkedImage))
   
   return perspective
 
-def ShowImage(title,im,time):
-	cv2.imshow(title,im)
-	cv2.waitKey(time)
-	cv2.destroyAllWindows()
-	return;
+

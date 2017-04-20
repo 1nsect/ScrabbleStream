@@ -13,32 +13,32 @@ def ShowImage(title,im,time):
 	return;
 
 
+img_path = 'DecoupeO2.jpg'
 
-    # Read image with opencv
-img = cv2.imread('DecoupeO.jpeg',0)
 
+
+img = cv2.imread(img_path)
+img = np.concatenate((img, img, img, img), axis=1)
+
+    # Convert to gray
+img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Apply dilation and erosion to remove some noise
-kernel = np.ones((1, 1), np.uint8)
-img = cv2.dilate(img, kernel, iterations=1)
-img = cv2.erode(img, kernel, iterations=1)
 
-cv2.imshow('caca',img)
-
-
-cv2.imwrite('removed_noise.png', img)
+blur = cv2.bilateralFilter(img,9,75,75)
 
     # Apply threshold to get image with only black and white
-img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+ret,img = cv2.threshold(blur,110,255,cv2.THRESH_BINARY)
+
+kernel = np.ones((2,2),np.uint8)
+erosion = cv2.erode(img,kernel,iterations = 4)
+
+ShowImage('caca',erosion,1000)
 
     # Write the image after apply opencv to do some ...
-cv2.imwrite('thres.png', img)
-
+cv2.imwrite("thres.png", erosion)
 
     # Recognize text with tesseract for python
-result = pytesseract.image_to_string(Image.open('thres.png'))
-
-
-
+result = pytesseract.image_to_string(Image.open("thres.png"))
 
 print result

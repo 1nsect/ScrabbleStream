@@ -9,30 +9,30 @@ import matplotlib.image as mpimg
 import math #to use absolute value function 'fabs'
 import pytesseract
 
-import toolboxScrabble
+import ToolboxScrabble as ts
 
-FillSize = 90 #Remplissage du plateau
-SizeOfPerspective = 500
+KernelSize = 30 #Remplissage du plateau
+OutputSize = 500
 EdgeProportion = 10
 
 TimeToWait = 1000
 
 im = cv2.imread('plateau.jpg',0)
 
-perspective = CropBoard(im, FillSize, SizeOfPerspective )
+perspective = ts.CropBoard(im, KernelSize, OutputSize )
 
-ShowImage('Perspective',perspective,0)
+ts.ShowImage('Perspective',perspective,0)
 
 
 
-SizeCell = (SizeOfPerspective-2*SizeOfPerspective/EdgeProportion)/15
+SizeCell = (OutputSize-2*OutputSize/EdgeProportion)/15
 
-pt1 =  (SizeOfPerspective/EdgeProportion + 6*SizeCell, SizeOfPerspective/EdgeProportion + SizeCell)
-pt2 =  (SizeOfPerspective/EdgeProportion  + 6*SizeCell, 9*SizeOfPerspective/EdgeProportion - SizeCell)
+pt1 =  (OutputSize/EdgeProportion + 6*SizeCell, OutputSize/EdgeProportion + SizeCell)
+pt2 =  (OutputSize/EdgeProportion  + 6*SizeCell, 9*OutputSize/EdgeProportion - SizeCell)
 
 cv2.line(perspective, pt1, pt2, (0,0,0), 2)
 
-ShowImage('Quadrillage',perspective,0)
+ts.ShowImage('Quadrillage',perspective,0)
 
 '''
 While():
