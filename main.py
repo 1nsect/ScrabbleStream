@@ -7,7 +7,7 @@ np.set_printoptions(threshold=np.nan)
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import math #to use absolute value function 'fabs'
-import tesseract
+import pytesseract
 
 #import toolbox.py
 
