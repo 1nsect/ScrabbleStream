@@ -26,17 +26,14 @@ def CropBoard( image, FillSize, SizeOfReworkedImage ):
   #kernel = np.ones((FillSize,FillSize),np.uint8)
   opening = cv2.morphologyEx(th1, cv2.MORPH_OPEN, kernel)
   
-  ShowImage('title',opening,2000)
-
   #apply Canny Edge algorythm
   canny = cv2.Canny(opening,100,200)
-  
-  #Find all the contours in the opened image and retain only useful points
-  contours, hierarchy = cv2.findContours(canny,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-  
-  #Take only the second contour
-  contour = contours[1]
-  
+
+  #Find the outer contour in the opened image and retain only useful points
+  contour = cv2.findContours(canny,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+
+  contour = contour[0][0]
+
   #calculate the corners with the contour list
   epsilon = 0.1*cv2.arcLength(contour,True)
   approx = cv2.approxPolyDP(contour,epsilon,True)
@@ -51,6 +48,8 @@ def CropBoard( image, FillSize, SizeOfReworkedImage ):
   #Transform image to get right perspective
   perspective = cv2.warpPerspective(image,Correction,(SizeOfReworkedImage,SizeOfReworkedImage))
   
+  
+
   return perspective
 
 

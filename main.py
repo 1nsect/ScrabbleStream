@@ -11,7 +11,7 @@ import pytesseract
 
 import ToolboxScrabble as ts
 
-KernelSize = 30 #Remplissage du plateau
+KernelSize = 10 #Remplissage du plateau
 OutputSize = 500
 EdgeProportion = 10
 
@@ -20,6 +20,10 @@ TimeToWait = 1000
 im = cv2.imread('plateau.jpg',0)
 
 perspective = ts.CropBoard(im, KernelSize, OutputSize )
+
+ts.ShowImage('title',perspective,0)
+
+perspective = ts.CropBoard(perspective, KernelSize, OutputSize)
 
 ts.ShowImage('Perspective',perspective,0)
 
