@@ -52,4 +52,14 @@ def CropBoard( image, FillSize, SizeOfReworkedImage ):
 
   return perspective
 
+'''
+def GetCell( WhichCell ): #image, FillSize, SizeOfReworkedImage, 
+  "Takes the image of a cell for further caractere determination"
+  
+  Indexes = WhichCell.index(1)
 
+  return perspective
+
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(4,4))
+print GetCell(kernel)
+'''
