@@ -18,9 +18,11 @@ import ToolboxScrabble as ts
 FirstKernelSize = 10 #Remplissage du plateau
 SecondKernelSize = 30 #Remplissage du plateau
 OutputSize = 500
-EdgeProportion = float(90)/float(96)
 
-TimeToWait = 100
+EdgeProportion = float(90)/float(96)
+TimeToSkip= 100
+TimeToWait = 3000
+
 
 im=ts.takePicture()
 im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
@@ -32,24 +34,24 @@ ts.ShowImage('title',im,0)
 '''
 perspective = ts.CropBoard(im, FirstKernelSize, OutputSize, 0 )
 
-ts.ShowImage('title',perspective,0)
+ts.ShowImage('title',perspective,TimeToSkip)
 
 perspective = ts.CropBoard(perspective, SecondKernelSize, OutputSize, 1)
 
-ts.ShowImage('Perspective',perspective,0)
+ts.ShowImage('Perspective',perspective,TimeToSkip)
 
 
 
 X_ = ts. getCoordinateVector(EdgeProportion,OutputSize)
 
-
 matrix = ts.getFilledCells(perspective,X_,25,25,105)
+
 
 print matrix
 
 cv2.line(perspective, (X_[0][0],X_[0][0]), (X_[10][0],X_[0][0]), (0,0,0), 2)
 
-ts.ShowImage('Quadrillage',perspective,0)
+ts.ShowImage('Quadrillage',perspective,TimeToWait)
 
 cell = ts.getNeiborhood(perspective,X_[7][0]+5,X_[7][0]+5,20,20,0)
 

@@ -59,6 +59,7 @@ def CropBoard( image, FillSize, SizeOfReworkedImage, KernelShape ):
 
   return perspective
 
+
 def getCoordinateVector(edgeratio,size):
 
   coorarray = []
