@@ -1,11 +1,16 @@
 import sys
 import time #sleep function
-import cv2
+
 import numpy as np
+
 from matplotlib import pyplot as plt
+
 np.set_printoptions(threshold=np.nan)
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+
+import cv2
+
 import math #to use absolute value function 'fabs'
 
 TailleRemplissage = 90 #Remplissage du plateau

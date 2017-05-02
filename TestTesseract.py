@@ -39,6 +39,6 @@ ShowImage('caca',erosion,1000)
 cv2.imwrite("thres.png", erosion)
 
     # Recognize text with tesseract for python
-result = pytesseract.image_to_string(Image.open("thres.png"))
+result = pytesseract.image_to_string(Image.open('thres.png'))
 
 print result
