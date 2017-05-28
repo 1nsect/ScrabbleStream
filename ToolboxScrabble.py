@@ -13,17 +13,17 @@ def ShowImage(title,im,time):
   cv2.destroyAllWindows()
   return;
 
-def CropBoard( image, FillSize, SizeOfReworkedImage, KernelShape ):
+def CropBoard( image, FillSize, SizeOfReworkedImage, KernelShape, showImageTime ):
   "Takes the image to find the outer edges, KernelShape=0 -> Ellipse; KernelShape=1 -> Square "
   
   #blur with a square of 9 (recommanded) and a sigma value of 75 (not strong, not too smooth)
   blur = cv2.bilateralFilter(image,9,75,75)
   
-  ShowImage('salut', blur, 0)
+  ShowImage('salut', blur, showImageTime)
   #Threshold binary with 110 as Threshold value. Don't know if the adaptive threshold is better.
   ret,th1 = cv2.threshold(blur,110,255,cv2.THRESH_BINARY)
   #th1 = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
-  ShowImage('salut', th1, 0)
+  ShowImage('salut', th1, showImageTime)
   #Create a kernel of size Fillsize to open the thresholded image
   if(KernelShape==0):
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(FillSize,FillSize))
@@ -31,15 +31,28 @@ def CropBoard( image, FillSize, SizeOfReworkedImage, KernelShape ):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(FillSize,FillSize))
   #kernel = np.ones((FillSize,FillSize),np.uint8)
   opening = cv2.morphologyEx(th1, cv2.MORPH_OPEN, kernel)
-  ShowImage('salut', opening, 0)
+  ShowImage('salut', opening, showImageTime)
+
   #apply Canny Edge algorythm
   canny = cv2.Canny(opening,100,200)
 
+  '''
   #Find the outer contour in the opened image and retain only useful points
   contours = cv2.findContours(canny,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+  '''
 
-  contour = contours[1][0]
-  #print contour
+  #Find the outer contour in the opened image and retain only useful points
+  contours = cv2.findContours(canny,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+
+  largestArea = 0
+
+  #find the biggest contour in contours
+  for i in contours
+    print cv2.contourArea(i)
+
+  #Get first contour (maybe have a function that founds the largest contour instead of picking the first one???)
+  contour = contours[0][0]
+
   #calculate the corners with the contour list
   epsilon = 0.1*cv2.arcLength(contour,True)
   approx = cv2.approxPolyDP(contour,epsilon,True)
@@ -59,8 +72,8 @@ def CropBoard( image, FillSize, SizeOfReworkedImage, KernelShape ):
 
   return perspective
 
-
-def getCoordinateVector(edgeratio,size):
+#get X coordinates of all the column
+def getColumnsCoordinates(edgeratio,size):
 
   coorarray = []
 
@@ -119,23 +132,20 @@ def getChar(im):
 
 def getFilledCells(board,positionvector,sizecellx,sizecelly,threshold):
 
-  
-
-  fillmatrix=np.zeros((15, 15), dtype=int)
+  filledmatrix=np.zeros((15, 15), dtype=int)
   
 
   for i in range (0,14):
-    
     for j in range (0,14):
 
       c = getNeiborhood(board,positionvector[i][0],positionvector[j][0],sizecellx,sizecelly,0)
       
       
       if int(c.mean()) > threshold: 
-        fillmatrix[i][j] = int(0)
+        filledmatrix[i][j] = int(0)
 
       else:
-        fillmatrix[i][j] = int(1)
+        filledmatrix[i][j] = int(1)
     
 
 

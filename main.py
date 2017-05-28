@@ -21,28 +21,30 @@ OutputSize = 500
 
 EdgeProportion = float(90)/float(96)
 TimeToSkip= 100
-TimeToWait = 3000
+TimeToWait = 0
 
-
+'''Take picture from camera
 im=ts.takePicture()
 im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
 ts.ShowImage('coucou',im,0)
 '''
+
 im = cv2.imread('PlateauO.jpg',0)
-ts.ShowImage('title',im,0)
-'''
-perspective = ts.CropBoard(im, FirstKernelSize, OutputSize, 0 )
+ts.ShowImage('title',im,TimeToSkip)
 
-ts.ShowImage('title',perspective,TimeToSkip)
+perspective = ts.CropBoard(im, FirstKernelSize, OutputSize, 0, TimeToSkip)
 
-perspective = ts.CropBoard(perspective, SecondKernelSize, OutputSize, 1)
+ts.ShowImage('title',perspective,TimeToWait)
 
-ts.ShowImage('Perspective',perspective,TimeToSkip)
+perspective = ts.CropBoard(perspective, SecondKernelSize, OutputSize, 1, TimeToSkip)
+
+ts.ShowImage('Perspective',perspective,TimeToWait)
 
 
+#get coordinates of all the columns
+X_ = ts.getColumnsCoordinates(EdgeProportion,OutputSize)
 
-X_ = ts. getCoordinateVector(EdgeProportion,OutputSize)
 
 matrix = ts.getFilledCells(perspective,X_,25,25,105)
 
