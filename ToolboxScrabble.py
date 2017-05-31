@@ -116,16 +116,22 @@ def getColumnsCoordinates(margin,cellSize):
     
   return coorarray
 
+def drawGrid(im, positionVector, cellSize):
+  for i in range (0,14):
+    for j in range (0,14):
+      cv2.line(im, (positionVector[i][0],positionVector[j][0]), (positionVector[i][0]+cellSize,positionVector[j][0]), (0,0,0), 2)
+      cv2.line(im, (positionVector[i][0]+cellSize,positionVector[j][0]), (positionVector[i][0]+cellSize,positionVector[j][0]+cellSize), (0,0,0), 2)
+      cv2.line(im, (positionVector[i][0],positionVector[j][0]+cellSize), (positionVector[i][0]+cellSize,positionVector[j][0]+cellSize), (0,0,0), 2)
+      cv2.line(im, (positionVector[i][0],positionVector[j][0]), (positionVector[i][0],positionVector[j][0]+cellSize), (0,0,0), 2)
+
 def isCellOccupied(img,x,y,cellSize,threshold):
 
   out = np.empty((cellSize, cellSize))
   
-  print img.shape
   
   for i in range(0,cellSize):
-    ShowImage('Quadrillage',img,10)
+    #ShowImage('Quadrillage',img,10)
     for j in range(0,cellSize):
-      cv2.line(img, (x,y), (x+cellSize,y+cellSize), (0,0,0), 2)
       #print img[x+i][y+j]
       out[i][j] = img[x+i][y+j]
   
@@ -161,13 +167,10 @@ def getFilledCells(picture,positionVector,boardState,cellSize,threshold):
 
   #create support matrix of 0
   filledmatrix=np.zeros((15, 15), dtype=int)
-  
-  print boardState
-  
+
   #browse the board
   for i in range (0,14):
     for j in range (0,14):
-
       #check if the cell was already processed
       if(boardState[i][j]==0):
       #check if the cell is occupied or not

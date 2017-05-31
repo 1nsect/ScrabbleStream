@@ -29,7 +29,7 @@ CellSize=int(round((ImageSize-2*Margin)/19.38))
 X_ = ts.getColumnsCoordinates(Margin,CellSize)
 
 TimeToSkip= 100
-TimeToWait = 0
+TimeToWait = 2000
 
 
 #Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - 
@@ -43,10 +43,9 @@ ts.ShowImage('coucou',im,0)
 #Create the survey matrix
 boardState = np.zeros((15, 15), dtype=int)
 
-# load the query image, compute the ratio of the old height
+# load the query image
 # to the new height, clone it, and resize it
 im = cv2.imread('PlateauO.jpg')
-ratio = im.shape[0] / 300.0
 orig = im.copy()
 im = cv2.resize(im,None,ImageSize,0.5,0.5, interpolation = cv2.INTER_AREA)
 
@@ -63,22 +62,25 @@ perspective = ts.CropBoard(gray, FirstKernelSize, 0, TimeToSkip)
 #second croping
 perspective = ts.CropBoard(perspective, SecondKernelSize, 1, TimeToSkip)
 
-#ts.ShowImage('Perspective',perspective,TimeToWait)
+ts.ShowImage('Perspective',perspective,TimeToSkip)
 
 #Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - 
 
 #Scan the new board state and extract new caramels
-newFilledCells = ts.getFilledCells(perspective,X_,boardState,CellSize,105)
+newFilledCells = ts.getFilledCells(perspective,X_,boardState,CellSize,210)
+
+print newFilledCells
 
 #add the new filled cells to the boardState matrix
 boardState = boardState + newFilledCells
 
 #draw line to know where the columns are
-cv2.line(perspective, (X_[0][0],X_[0][0]), (X_[10][0],X_[0][0]), (0,0,0), 2)
+#cv2.line(perspective, (X_[0][0],X_[0][0]), (X_[10][0],X_[0][0]), (0,0,0), 2)
 ts.ShowImage('Quadrillage',perspective,TimeToWait)
 
 
-ts.ShowImage('Cell',cell,0)
+
+#ts.ShowImage('Cell',cell,TimeToWait)
 
 letter = ts.getChar(cell )
 
