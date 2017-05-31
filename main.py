@@ -12,18 +12,23 @@ import cv2
 import math #to use absolute value function 'fabs'
 import pytesseract
 from PIL import Image
-#from pyimagesearch import imutils
+#from pyimagesearch import imutils #can't find that modul...
 
 import ToolboxScrabble as ts
 
 #Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - 
 
 FirstKernelSize = 10 #Remplissage du plateau
-SecondKernelSize = 10 #Remplissage du plateau
+SecondKernelSize = 5 #Remplissage du plateau
 ImageSize = 300 #size of the board's image
+EdgeRatio = float(31)/float(32)
+Margin=ImageSize-ImageSize*EdgeRatio
+CellSize=int(round((ImageSize-2*Margin)/19.38))
 
-EdgeProportion = float(90)/float(96)
-TimeToSkip= 0
+#get coordinates of all the columns
+X_ = ts.getColumnsCoordinates(Margin,CellSize)
+
+TimeToSkip= 100
 TimeToWait = 0
 
 
@@ -40,15 +45,18 @@ boardState = np.zeros((15, 15), dtype=int)
 
 # load the query image, compute the ratio of the old height
 # to the new height, clone it, and resize it
-im = cv2.imread('PlateauO.jpg',0)
+im = cv2.imread('PlateauO.jpg')
 ratio = im.shape[0] / 300.0
 orig = im.copy()
-im = imutils.resize(im, height = ImageSize)
+im = cv2.resize(im,None,ImageSize,0.5,0.5, interpolation = cv2.INTER_AREA)
 
-ts.ShowImage('title',im,TimeToSkip)
+# convert the image to grayscale
+gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+
+ts.ShowImage('title',gray,TimeToSkip)
 
 #first croping
-perspective = ts.CropBoard(im, FirstKernelSize, 0, TimeToSkip)
+perspective = ts.CropBoard(gray, FirstKernelSize, 0, TimeToSkip)
 
 #ts.ShowImage('title',perspective,TimeToWait)
 
@@ -57,24 +65,17 @@ perspective = ts.CropBoard(perspective, SecondKernelSize, 1, TimeToSkip)
 
 #ts.ShowImage('Perspective',perspective,TimeToWait)
 
-
-#get coordinates of all the columns
-X_ = ts.getColumnsCoordinates(EdgeProportion,OutputSize)
-
 #Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - 
 
 #Scan the new board state and extract new caramels
-newBoardState = ts.getFilledCells(perspective,X_,boardState,25,25,105)
+newFilledCells = ts.getFilledCells(perspective,X_,boardState,CellSize,105)
 
-#add the new caramels to the boardState matrix
-newBoardState = newBoardState - boardState
-boardState = newBoardState
+#add the new filled cells to the boardState matrix
+boardState = boardState + newFilledCells
 
 #draw line to know where the columns are
-#cv2.line(perspective, (X_[0][0],X_[0][0]), (X_[10][0],X_[0][0]), (0,0,0), 2)
-#ts.ShowImage('Quadrillage',perspective,TimeToWait)
-
-cell = ts.getNeiborhood(perspective,X_[7][0]+5,X_[7][0]+5,20,20,0)
+cv2.line(perspective, (X_[0][0],X_[0][0]), (X_[10][0],X_[0][0]), (0,0,0), 2)
+ts.ShowImage('Quadrillage',perspective,TimeToWait)
 
 
 ts.ShowImage('Cell',cell,0)

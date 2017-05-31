@@ -24,6 +24,7 @@ def CropBoard( image, FillSize, KernelShape, showImageTime ):
   ret,th1 = cv2.threshold(blur,110,255,cv2.THRESH_BINARY)
   #th1 = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
   ShowImage('salut', th1, showImageTime)
+  '''
   #Create a kernel of size Fillsize to open the thresholded image
   if(KernelShape==0):
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(FillSize,FillSize))
@@ -32,10 +33,10 @@ def CropBoard( image, FillSize, KernelShape, showImageTime ):
   #kernel = np.ones((FillSize,FillSize),np.uint8)
   opening = cv2.morphologyEx(th1, cv2.MORPH_OPEN, kernel)
   ShowImage('salut', opening, showImageTime)
-
+  '''
   #apply Canny Edge algorythm
-  canny = cv2.Canny(opening,100,200)
-
+  canny = cv2.Canny(blur,100,200)
+  ShowImage('salut', canny, showImageTime)
   #Find the outer contour in the opened image and retain only useful points - we copy the image because findcontours
   #is destructive
   (contours, _) = cv2.findContours(canny.copy(),cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
@@ -105,31 +106,26 @@ def CropBoard( image, FillSize, KernelShape, showImageTime ):
   
   return perspective
 
-#get X coordinates of all the column
-def getColumnsCoordinates(edgeratio,size):
+#get X coordinates of all the columns
+def getColumnsCoordinates(margin,cellSize):
 
   coorarray = []
 
-  margin=size-round(size*float(edgeratio))
-  sizecell=round((size-margin)/15)
-
   for i in range(0,15):
-   coorarray.append([int(round((margin)/2 + i*sizecell))])
+   coorarray.append([int(round((margin)/2 + i*cellSize))])
     
   return coorarray
 
-def getFillingMatrix():
+def isCellOccupied(img,x,y,cellSize,threshold):
 
- return 0
-
-
-def isCellOccupied(img,x,y,sizex,sizey,threshold):
-
-  out = np.empty((sizex, sizey))
+  out = np.empty((cellSize, cellSize))
   
+  print img.shape
   
-  for i in range(0,sizex):
-    for j in range(0,sizey):
+  for i in range(0,cellSize):
+    ShowImage('Quadrillage',img,10)
+    for j in range(0,cellSize):
+      cv2.line(img, (x,y), (x+cellSize,y+cellSize), (0,0,0), 2)
       #print img[x+i][y+j]
       out[i][j] = img[x+i][y+j]
   
@@ -161,18 +157,21 @@ def getChar(im):
   return result[0]
 
 
-def getFilledCells(board,positionVector,boardState,sizecellx,sizecelly,threshold):
+def getFilledCells(picture,positionVector,boardState,cellSize,threshold):
 
   #create support matrix of 0
   filledmatrix=np.zeros((15, 15), dtype=int)
   
+  print boardState
+  
   #browse the board
   for i in range (0,14):
     for j in range (0,14):
+
       #check if the cell was already processed
       if(boardState[i][j]==0):
       #check if the cell is occupied or not
-        if( isCellOccupied(board,positionVector[i][0],positionVector[j][0],sizecellx,sizecelly,threshold) ):
+        if( isCellOccupied(picture,positionVector[i][0],positionVector[j][0],cellSize,threshold) ):
           filledmatrix[i][j] = int(1)
         else:
           filledmatrix[i][j] = int(0)
