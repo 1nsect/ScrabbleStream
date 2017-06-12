@@ -7,13 +7,14 @@ import pytesseract
 from PIL import Image
 
 
+
 def ShowImage(title,im,time):
   cv2.imshow(title,im)
   cv2.waitKey(time)
   cv2.destroyAllWindows()
   return;
 
-def CropBoard( image, FillSize, KernelShape, showImageTime ):
+def CropBoard( image, ImageSize, showImageTime ):
   "Takes the image to find the outer edges, KernelShape=0 -> Ellipse; KernelShape=1 -> Square "
   
   #blur with a square of 9 (recommanded) and a sigma value of 75 (not strong, not too smooth)
@@ -24,6 +25,7 @@ def CropBoard( image, FillSize, KernelShape, showImageTime ):
   ret,th1 = cv2.threshold(blur,110,255,cv2.THRESH_BINARY)
   #th1 = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
   ShowImage('salut', th1, showImageTime)
+
   '''
   #Create a kernel of size Fillsize to open the thresholded image
   if(KernelShape==0):
@@ -34,6 +36,7 @@ def CropBoard( image, FillSize, KernelShape, showImageTime ):
   opening = cv2.morphologyEx(th1, cv2.MORPH_OPEN, kernel)
   ShowImage('salut', opening, showImageTime)
   '''
+
   #apply Canny Edge algorythm
   canny = cv2.Canny(blur,100,200)
   ShowImage('salut', canny, showImageTime)
@@ -41,9 +44,12 @@ def CropBoard( image, FillSize, KernelShape, showImageTime ):
   #is destructive
   (contours, _) = cv2.findContours(canny.copy(),cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
 
-  #sort the contours so that we have the largest contour
+  #sort the contours so that we have the 10 largest contours
   contours = sorted(contours, key = cv2.contourArea, reverse = True)[:10]
   
+  #reverse order to have the 10 largest contour but in the smallest to largest order
+  contours.reverse()
+
   #initialize the board contour
   contour = None
 
@@ -80,29 +86,14 @@ def CropBoard( image, FillSize, KernelShape, showImageTime ):
   rect[1] = pts[np.argmin(diff)]
   rect[3] = pts[np.argmax(diff)]
 
-  # now that we have our rectangle of points, let's compute
-  # the width of our new image
-  (tl, tr, br, bl) = rect
-  widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
-  widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
+  # construct our destination points which will be used
+  dst = np.array([[0, 0],[ImageSize - 1, 0],[ImageSize - 1, ImageSize - 1],[0, ImageSize - 1]], dtype = "float32")
+  print dst
 
-  # ...and now for the height of our new image
-  heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
-  heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
-   
-  # take the maximum of the width and height values to reach
-  # our final dimensions
-  maxWidth = max(int(widthA), int(widthB))
-  maxHeight = max(int(heightA), int(heightB))
-
-  # construct our destination points which will be used to
-  # map the screen to a top-down, "birds eye" view
-  dst = np.array([[0, 0],[maxWidth - 1, 0],[maxWidth - 1, maxHeight - 1],[0, maxHeight - 1]], dtype = "float32")
- 
   # calculate the perspective transform matrix and warp
   # the perspective to grab the screen
   CorrectionMatrix = cv2.getPerspectiveTransform(rect, dst)
-  perspective = cv2.warpPerspective(image, CorrectionMatrix, (maxWidth, maxHeight))
+  perspective = cv2.warpPerspective(image, CorrectionMatrix, (ImageSize, ImageSize))
   
   return perspective
 
@@ -116,26 +107,26 @@ def getColumnsCoordinates(margin,cellSize):
     
   return coorarray
 
+#draws the grid that is used to extract the cells from the whole board
 def drawGrid(im, positionVector, cellSize):
-  for i in range (0,14):
-    for j in range (0,14):
-      cv2.line(im, (positionVector[i][0],positionVector[j][0]), (positionVector[i][0]+cellSize,positionVector[j][0]), (0,0,0), 2)
-      cv2.line(im, (positionVector[i][0]+cellSize,positionVector[j][0]), (positionVector[i][0]+cellSize,positionVector[j][0]+cellSize), (0,0,0), 2)
-      cv2.line(im, (positionVector[i][0],positionVector[j][0]+cellSize), (positionVector[i][0]+cellSize,positionVector[j][0]+cellSize), (0,0,0), 2)
-      cv2.line(im, (positionVector[i][0],positionVector[j][0]), (positionVector[i][0],positionVector[j][0]+cellSize), (0,0,0), 2)
+  for i in range (0,15):
+    for j in range (0,15):
+      cv2.line(im, (positionVector[i][0],positionVector[j][0]), (positionVector[i][0]+cellSize,positionVector[j][0]), (0,0,0), 1)
+      cv2.line(im, (positionVector[i][0]+cellSize,positionVector[j][0]), (positionVector[i][0]+cellSize,positionVector[j][0]+cellSize), (0,0,0), 1)
+      cv2.line(im, (positionVector[i][0],positionVector[j][0]+cellSize), (positionVector[i][0]+cellSize,positionVector[j][0]+cellSize), (0,0,0), 1)
+      cv2.line(im, (positionVector[i][0],positionVector[j][0]), (positionVector[i][0],positionVector[j][0]+cellSize), (0,0,0), 1)
 
 def isCellOccupied(img,x,y,cellSize,threshold):
 
   out = np.empty((cellSize, cellSize))
-  
-  
+
   for i in range(0,cellSize):
     #ShowImage('Quadrillage',img,10)
     for j in range(0,cellSize):
-      #print img[x+i][y+j]
+
       out[i][j] = img[x+i][y+j]
-  
-  return int( out.mean() > threshold)
+
+  return bool( np.median(out) < threshold)
 
 def getChar(im):
 
@@ -163,7 +154,7 @@ def getChar(im):
   return result[0]
 
 
-def getFilledCells(picture,positionVector,boardState,cellSize,threshold):
+def getFilledCells(img,positionVector,boardState,cellSize,threshold):
 
   #create support matrix of 0
   filledmatrix=np.zeros((15, 15), dtype=int)
@@ -174,12 +165,12 @@ def getFilledCells(picture,positionVector,boardState,cellSize,threshold):
       #check if the cell was already processed
       if(boardState[i][j]==0):
       #check if the cell is occupied or not
-        if( isCellOccupied(picture,positionVector[i][0],positionVector[j][0],cellSize,threshold) ):
+        if( isCellOccupied(img,positionVector[i][0],positionVector[j][0],cellSize,threshold) ):
           filledmatrix[i][j] = int(1)
         else:
           filledmatrix[i][j] = int(0)
   
-  return filledmatrix 
+  return filledmatrix
 
 
 def takePicture():

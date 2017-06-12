@@ -18,18 +18,21 @@ import ToolboxScrabble as ts
 
 #Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - 
 
-FirstKernelSize = 10 #Remplissage du plateau
-SecondKernelSize = 5 #Remplissage du plateau
 ImageSize = 300 #size of the board's image
 EdgeRatio = float(31)/float(32)
 Margin=ImageSize-ImageSize*EdgeRatio
-CellSize=int(round((ImageSize-2*Margin)/19.38))
+CellSize=int(round((ImageSize-2*Margin)/15))
+
+#Il faudra calibrer cette valeur
+Threshold = 110
 
 #get coordinates of all the columns
 X_ = ts.getColumnsCoordinates(Margin,CellSize)
 
+print X_
+
 TimeToSkip= 100
-TimeToWait = 2000
+TimeToWait = 4000
 
 
 #Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - 
@@ -54,20 +57,15 @@ gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
 ts.ShowImage('title',gray,TimeToSkip)
 
-#first croping
-perspective = ts.CropBoard(gray, FirstKernelSize, 0, TimeToSkip)
-
-#ts.ShowImage('title',perspective,TimeToWait)
-
-#second croping
-perspective = ts.CropBoard(perspective, SecondKernelSize, 1, TimeToSkip)
+#croping
+perspective = ts.CropBoard(gray, ImageSize, TimeToSkip)
 
 ts.ShowImage('Perspective',perspective,TimeToSkip)
 
 #Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - 
 
 #Scan the new board state and extract new caramels
-newFilledCells = ts.getFilledCells(perspective,X_,boardState,CellSize,210)
+newFilledCells = ts.getFilledCells(perspective,X_,boardState,CellSize,Threshold)
 
 print newFilledCells
 
@@ -76,11 +74,8 @@ boardState = boardState + newFilledCells
 
 #draw line to know where the columns are
 #cv2.line(perspective, (X_[0][0],X_[0][0]), (X_[10][0],X_[0][0]), (0,0,0), 2)
-ts.ShowImage('Quadrillage',perspective,TimeToWait)
 
-
-
-#ts.ShowImage('Cell',cell,TimeToWait)
+ts.drawGrid(perspective, X_, CellSize)
 
 letter = ts.getChar(cell )
 
@@ -89,9 +84,7 @@ print letter
 
 '''  
 While():
-take picture
-perspective = RecogniseBoard()
-WherePart = TestWherePart(perspective)
-TestCases(WherePart)
+Protocole de calibration
+
 '''
 print("End")
