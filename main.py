@@ -47,7 +47,7 @@ ts.ShowImage('coucou',im,0)
 '''
 
 #Create the survey matrix
-boardState = np.zeros((15, 15), dtype=int)
+boardState = np.zeros((15, 15), dtype=object)
 
 # load the query image
 # to the new height, clone it, and resize it
@@ -80,13 +80,13 @@ boardState = boardState + newFilledCells
 
 rb.drawGrid(perspective.copy(), X_, CellSize)
 
-rb.GetCellImage(perspective,X_[7],X_[7],CellSize)
+rb.ReadBoard(perspective,boardState,X_,CellSize)
 
-rb.ReadBoard(perspective,boardState,X_, CellSize)
+print boardState
 
-letter = rb.getChar(perspective, 7, 7, CellSize)
 
-print letter
+#letter = rb.getChar(perspective, 7, 7, CellSize)
+#print letter
 
 
 '''  

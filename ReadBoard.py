@@ -49,28 +49,37 @@ def getFilledCells(img,positionVector,boardState,cellSize,threshold):
 
 def getChar(im):
 
-	img = np.concatenate((im, im, im, im), axis=1) 
+  height, width = im.shape[:2]
+  img = cv2.resize(im,(4*width, 4*height), interpolation = cv2.INTER_CUBIC)
 
-	img = img.astype(np.uint8)
-    # Apply dilation and erosion to remove some noise
+  ts.ShowImage('caca1',img,2000)
 
-	#blur = cv2.bilateralFilter(img,9,75,75)
+  img = np.concatenate((img, img, img, img), axis=1) 
 
-    # Apply threshold to get image with only black and white
-  	ret,img = cv2.threshold(img,65,255,cv2.THRESH_BINARY)
+  img = img.astype(np.uint8)
+  
+  ts.ShowImage('caca2',img,2000)
+  # Apply dilation and erosion to remove some noise
 
-  	kernel = np.ones((2,2),np.uint8)
-  	erosion = cv2.erode(img,kernel,iterations = 3)
+  #blur = cv2.bilateralFilter(img,9,75,75)
+  
+  # Apply threshold to get image with only black and white
+  _, img = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
+  ts.ShowImage('caca3',img,2000)
 
-	ts.ShowImage('caca',erosion,0)
+  kernel = np.ones((2,2),np.uint8)
+  erosion = cv2.erode(img,kernel,iterations = 3)
+  
+  ts.ShowImage('caca4',erosion,2000)
 
-	# Write the image after apply opencv to do some ...
-	cv2.imwrite("temp_char.png", erosion)
+  # Write the image after apply opencv to do some ...
+  cv2.imwrite("temp_char.png", img)
 
-	# Recognize text with tesseract for python
-	result = pytesseract.image_to_string(Image.open('temp_char.png'))
+  # Recognize text with tesseract for python
+  result = pytesseract.image_to_string(Image.open('temp_char.png'))
+  print result
 
-	return result[0]
+  return result[0]
 
 '''
 def GetCellCoordinate(x,y,positionVector):
@@ -88,10 +97,8 @@ def GetCellImage(img,x,y,cellSize):
 
   return out.astype(np.uint8)
 
-
 def ReadBoard(im, BoardState, positionVector, cellSize):
-	for i in range(0,15):
-		for j in range(0,15):
-			if(BoardState[i][j] == 1):
-				getChar(GetCellImage(im, positionVector[i], positionVector[j],cellSize))
-
+  for i in range(0,15):
+    for j in range(0,15):
+      if(BoardState[i][j]==1):
+        BoardState[i][j] = getChar(GetCellImage(im, positionVector[i], positionVector[j],cellSize))
