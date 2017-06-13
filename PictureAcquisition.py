@@ -8,11 +8,12 @@ from PIL import Image
 
 import ToolboxScrabble as ts
 
-def takePicture():
-  camera_port = 1
+def takePicture(port,rampFrame):
+#Select camera
+  camera_port = port
 
 #Number of frames to throw away while the camera adjusts to light levels
-  ramp_frames = 30
+  ramp_frames = rampFrame
  
 # Now we can initialize the camera capture object with the cv2.VideoCapture class.
 # All it needs is the index to a camera port.
@@ -22,14 +23,16 @@ def takePicture():
 
  # read is the easiest way to get a full image out of a VideoCapture object.
   retval, im = camera.read()
+
+  gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
   
-  return im  
+  return gray  
 
 def CropBoard( image, ImageSize, Delay ):
   "Takes the image to find the outer edges, KernelShape=0 -> Ellipse; KernelShape=1 -> Square "
   
   #blur with a square of 9 (recommanded) and a sigma value of 75 (not strong, not too smooth)
-  blur = cv2.bilateralFilter(image,9,75,75)
+  blur = cv2.bilateralFilter(image,11,17,17)
   
   ts.ShowImage('salut', blur, Delay)
   #Threshold binary with 110 as Threshold value. Don't know if the adaptive threshold is better.
@@ -53,13 +56,13 @@ def CropBoard( image, ImageSize, Delay ):
   ts.ShowImage('salut', canny, Delay)
   #Find the outer contour in the opened image and retain only useful points - we copy the image because findcontours
   #is destructive
-  (contours, _) = cv2.findContours(canny.copy(),cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+  (_, contours, _) = cv2.findContours(canny.copy(),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
   #sort the contours so that we have the 10 largest contours
-  contours = sorted(contours, key = cv2.contourArea, reverse = True)[:10]
+  contours = sorted(contours, key = cv2.contourArea, reverse = True)[:5]
   
   #reverse order to have the 10 largest contour but in the smallest to largest order
-  contours.reverse()
+  #contours.reverse()
 
   #initialize the board contour
   contour = None
@@ -107,3 +110,29 @@ def CropBoard( image, ImageSize, Delay ):
   perspective = cv2.warpPerspective(image, CorrectionMatrix, (ImageSize, ImageSize))
   
   return perspective
+
+#def getBoardSettings( collumnCoordinates, Image):
+#def calibrateFilledCellThreshold( collumnCoordinates, Image):
+
+
+# test 13.06.2017
+
+imtest = takePicture(1,20)
+
+ImageSize = 300 #size of the board's image
+
+resized = CropBoard(imtest,ImageSize,0)
+
+ts.ShowImage('test',resized,0)
+
+
+EdgeRatio = float(31)/float(32)
+Margin=ImageSize-ImageSize*EdgeRatio
+CellSize=int(round((ImageSize-2*Margin)/15))
+
+X_=ts.getColumnsCoordinates(Margin,CellSize)
+
+print X_
+#Il faudra calibrer cette valeur
+
+
