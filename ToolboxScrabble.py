@@ -14,12 +14,12 @@ def ShowImage(title,im,time):
   return;
 
 #get X coordinates of all the columns
-def getColumnsCoordinates(margin,cellSize):
+def getColumnsPixelPosition(margin,cellSize):
 
   coorarray = []
 
   for i in range(0,15):
-   coorarray.append([int(round((margin)/2 + i*cellSize))])
+   coorarray.append(int(round((margin)/2 + i*cellSize)))
     
   return coorarray
 
