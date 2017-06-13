@@ -30,7 +30,7 @@ CellSize=int(round((ImageSize-2*Margin)/15))
 Threshold = 110
 
 #get coordinates of all the columns
-X_ = ts.getColumnsCoordinates(Margin,CellSize)
+X_ = ts.getColumnsPixelPosition(Margin,CellSize)
 
 print X_
 
@@ -76,11 +76,15 @@ print newFilledCells
 boardState = boardState + newFilledCells
 
 #draw line to know where the columns are
-#cv2.line(perspective, (X_[0][0],X_[0][0]), (X_[10][0],X_[0][0]), (0,0,0), 2)
 
-rb.drawGrid(perspective, X_, CellSize)
 
-letter = rb.getChar(cell )
+rb.drawGrid(perspective.copy(), X_, CellSize)
+
+rb.GetCellImage(perspective,X_[7],X_[7],CellSize)
+
+rb.ReadBoard(perspective,boardState,X_, CellSize)
+
+letter = rb.getChar(perspective, 7, 7, CellSize)
 
 print letter
 
