@@ -99,7 +99,6 @@ def CropBoard( image, ImageSize, Delay ):
 
   # construct our destination points which will be used
   dst = np.array([[0, 0],[ImageSize - 1, 0],[ImageSize - 1, ImageSize - 1],[0, ImageSize - 1]], dtype = "float32")
-  print dst
 
   # calculate the perspective transform matrix and warp
   # the perspective to grab the screen
