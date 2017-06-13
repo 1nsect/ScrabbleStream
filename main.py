@@ -14,7 +14,10 @@ import pytesseract
 from PIL import Image
 #from pyimagesearch import imutils #can't find that modul...
 
+
 import ToolboxScrabble as ts
+import PictureAcquisition as pa
+import ReadBoard as rb
 
 #Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - 
 
@@ -37,7 +40,7 @@ TimeToWait = 4000
 
 #Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - Init - 
 '''Take picture from camera
-im=ts.takePicture()
+im=pa.takePicture()
 im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
 ts.ShowImage('coucou',im,0)
@@ -58,14 +61,14 @@ gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 ts.ShowImage('title',gray,TimeToSkip)
 
 #croping
-perspective = ts.CropBoard(gray, ImageSize, TimeToSkip)
+perspective = pa.CropBoard(gray, ImageSize, TimeToSkip)
 
 ts.ShowImage('Perspective',perspective,TimeToSkip)
 
 #Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - Loop - 
 
 #Scan the new board state and extract new caramels
-newFilledCells = ts.getFilledCells(perspective,X_,boardState,CellSize,Threshold)
+newFilledCells = rb.getFilledCells(perspective,X_,boardState,CellSize,Threshold)
 
 print newFilledCells
 
@@ -75,9 +78,9 @@ boardState = boardState + newFilledCells
 #draw line to know where the columns are
 #cv2.line(perspective, (X_[0][0],X_[0][0]), (X_[10][0],X_[0][0]), (0,0,0), 2)
 
-ts.drawGrid(perspective, X_, CellSize)
+rb.drawGrid(perspective, X_, CellSize)
 
-letter = ts.getChar(cell )
+letter = rb.getChar(cell )
 
 print letter
 
