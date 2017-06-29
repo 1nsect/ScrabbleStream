@@ -29,6 +29,7 @@ def isCellOccupied(img,x,y,cellSize,threshold):
 
   return bool( np.median(out) < threshold)
 
+#returns a 15x15 matrix of 0 where there is no new part and 1 where there is a new part
 def getFilledCells(img,positionVector,boardState,cellSize,threshold):
 
 	#create support matrix of 0
@@ -47,6 +48,7 @@ def getFilledCells(img,positionVector,boardState,cellSize,threshold):
 
 	return filledmatrix
 
+#uses the character recognizing algorithm to get the char of the new part
 def getChar(im):
 
   height, width = im.shape[:2]
@@ -81,24 +83,31 @@ def getChar(im):
 
   return result[0]
 
-'''
-def GetCellCoordinate(x,y,positionVector):
-	return (positionVector[x],positionVector[y])
-'''
 
+#isolates the cell at position (x,y)
 def GetCellImage(img,x,y,cellSize):
+  return img[x:x+cellSize, y:y+cellSize]
 
-  out = np.empty([cellSize, cellSize])
-  
-  for i in range(0,cellSize):
-    for j in range(0,cellSize):
-      #print img[x+i][y+j]
-      out[i][j] = img[x+i][y+j]
-
-  return out.astype(np.uint8)
-
+#Reads and extracts characters from all the new parts
 def ReadBoard(im, BoardState, positionVector, cellSize):
   for i in range(0,15):
     for j in range(0,15):
       if(BoardState[i][j]==1):
         BoardState[i][j] = getChar(GetCellImage(im, positionVector[i], positionVector[j],cellSize))
+
+
+'''
+#create a shifted image of the part (corner = 0: top left, corner = 1: top right,
+#corner = 2: bottom left, corner = 3: bottom right)
+def CreateShiftedCellImage(corner,letter):
+  im = cv2.imread(letter + '.jpg')
+
+  #convert the image to grayscale
+  gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+  ts.ShowImage('title',gray,TimeToSkip)
+
+  if( corner == 0):
+    constant = cv2.copyMakeBorder(gray,10,10,10,10,cv2.BORDER_CONSTANT,value=BLUE)
+
+  return constant
+'''
