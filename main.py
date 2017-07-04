@@ -21,7 +21,7 @@ import ReadBoard as rb
 
 #Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - Setting - 
 
-ImageSize = 300 #size of the board's image
+ImageSize = 1000 #size of the board's image
 EdgeRatio = float(31)/float(32)
 Margin=ImageSize-ImageSize*EdgeRatio
 CellSize=int(round((ImageSize-2*Margin)/15))
@@ -92,6 +92,6 @@ print boardState
 '''  
 While():
 Protocole de calibration
-
 '''
+
 print("End")

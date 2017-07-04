@@ -54,32 +54,49 @@ def getChar(im):
   height, width = im.shape[:2]
   img = cv2.resize(im,(4*width, 4*height), interpolation = cv2.INTER_CUBIC)
 
-  ts.ShowImage('caca1',img,2000)
+  ts.ShowImage('Resize',img,4000)
 
+  '''For the character recognition with character recognition algorythm
   img = np.concatenate((img, img, img, img), axis=1) 
-
+  
   img = img.astype(np.uint8)
   
-  ts.ShowImage('caca2',img,2000)
-  # Apply dilation and erosion to remove some noise
+  ts.ShowImage('Concatenate',img,2000)
+  '''
+
+  #Apply dilation and erosion to remove some noise
 
   #blur = cv2.bilateralFilter(img,9,75,75)
   
   # Apply threshold to get image with only black and white
   _, img = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
-  ts.ShowImage('caca3',img,2000)
+  ts.ShowImage('Threshold',img,100)
 
+  '''For the character recognition with character recognition algorythm
   kernel = np.ones((2,2),np.uint8)
   erosion = cv2.erode(img,kernel,iterations = 3)
   
-  ts.ShowImage('caca4',erosion,2000)
-
+  ts.ShowImage('Erosion',erosion,2000)
+  
+  
   # Write the image after apply opencv to do some ...
   cv2.imwrite("temp_char.png", img)
 
   # Recognize text with tesseract for python
   result = pytesseract.image_to_string(Image.open('temp_char.png'))
   print result
+  '''
+
+  templ = cv2.imread('DecoupeO1.jpg')
+  gray = cv2.cvtColor(templ, cv2.COLOR_BGR2GRAY)
+
+  templ = cv2.resize(gray,(4*width-10, 4*height-10), interpolation = cv2.INTER_CUBIC)
+
+  img = np.concatenate((img, templ), axis=1)
+
+  ts.ShowImage('Concatenate', img, 2000)
+
+  print cv2.matchTemplate(img, templ, cv2.TM_CCOEFF)
 
   return result[0]
 
